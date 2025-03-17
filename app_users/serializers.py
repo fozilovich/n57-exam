@@ -71,11 +71,10 @@ class UserAndTeacherSerializer(serializers.ModelSerializer): #Foydalanuvchi va o
 class UserAndStudentSerializer(serializers.ModelSerializer): #Foydalanuvchi, talaba va ota-ona ma'lumotlarini qaytaruvchi serializer
     user = UserSerializer()
     student = StudentSerializer()
-    parent = ParentSerializer()
 
     class Meta:
         model = Student
-        fields = ("user", "student", "parent")
+        fields = ("user", "student")
 
 
 class HomeworkHistorySerializer(serializers.ModelSerializer): #Uy vazifalari tarixini ko'rsatish uchun serializer

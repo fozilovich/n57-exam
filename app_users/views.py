@@ -177,18 +177,9 @@ class StudentCreateAPIView(APIView):
             phone = user_data.get('phone')
             user_s = User.objects.get(phone=phone)
             student_serializer.validated_data['user'] = user_s
-            student = student_serializer.save()
-        else:
-            user.delete()
-            return Response(student_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            student_serializer.save()
+            return Response({"detail":"Student yaratildi"},status=status.HTTP_201_CREATED)
 
-        parent_data = request.data.get('parent', {})
-        parent_serializer = ParentSerializer(data=parent_data)
-
-        if parent_serializer.is_valid():
-            parent = parent_serializer.save()
-            parent.students.add(student)
-            return Response(parent_serializer.data, status=status.HTTP_201_CREATED)
 
         else:
             user.delete()
