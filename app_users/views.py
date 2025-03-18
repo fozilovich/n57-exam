@@ -1,10 +1,8 @@
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status, generics, viewsets
-from rest_framework import permissions
 from drf_yasg.utils import swagger_auto_schema
 
 from app_common.permissions import AdminUser, AdminOrOwner
@@ -13,61 +11,61 @@ from app_courses.models import Group
 from app_courses.serializers import GroupSerializer
 from app_users.serializers import TeacherSerializer, UserSerializer, StudentSerializer, UserAndTeacherSerializer, \
     UserAndStudentSerializer, ParentSerializer, UserAllSerializer, GetStudentsByIdsSerializer, \
-    GetTeachersByIdsSerializer,HomeworkHistorySerializer
-from app_users.models import Teacher,Student,User,Parent,HomeworkHistory
+    GetTeachersByIdsSerializer
+from app_users.models import Teacher,Student,User,Parent
 
 
 #User
-class UserListView(generics.ListAPIView):  # Barcha foydalanuvchilar ro'yxatini olish
+
+class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserAllSerializer
     pagination_class = Pagination
     permission_classes = [AdminUser]
 
-class UserDetailView(generics.RetrieveAPIView):  # Bitta foydalanuvchi ma'lumotlarini olish
-    queryset = User.objects.all()
-    queryset = User.objects.all()
-    serializer_class = UserAllSerializer
-    lookup_field = 'id'
-    permission_classes = [AdminUser]
-
-class UserCreateView(generics.CreateAPIView):  # Yangi foydalanuvchi yaratish
-    queryset = User.objects.all()
-    serializer_class = UserAllSerializer
-    permission_classes = [AdminUser]
-
-class UserUpdateView(generics.UpdateAPIView):   # Foydalanuvchi ma'lumotlarini yangilash
+class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserAllSerializer
     lookup_field = 'id'
     permission_classes = [AdminUser]
 
-class UserDeleteView(generics.DestroyAPIView):  # Foydalanuvchini o‘chirish
+class UserCreateView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserAllSerializer
+    permission_classes = [AdminUser]
+
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserAllSerializer
+    lookup_field = 'id'
+    permission_classes = [AdminUser]
+
+class UserDeleteView(generics.DestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserAllSerializer
     lookup_field = 'id'
     permission_classes = [AdminUser]
 
 #Teacher
-class TeacherListView(ListAPIView):  # Barcha o‘qituvchilar ro‘yxatini olish
+class TeacherListView(ListAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
     pagination_class = Pagination
     permission_classes = [AdminUser]
 
-class TeacherUpdateView(UpdateAPIView):  # O‘qituvchi ma'lumotlarini yangilash
+class TeacherUpdateView(UpdateAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
     lookup_field = 'id'
     permission_classes = [AdminUser]
 
-class TeacherRetrieveAPIView(RetrieveAPIView):  # Bitta o‘qituvchi haqida ma'lumot olish
+class TeacherRetrieveAPIView(RetrieveAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
     lookup_field = 'id'
     permission_classes = [AdminOrOwner]
 
-class GetTeachersByIds(APIView):  # Berilgan IDlar bo‘yicha o‘qituvchilarni olish
+class GetTeachersByIds(APIView):
     permission_classes = [AdminUser]
     @swagger_auto_schema(request_body=GetTeachersByIdsSerializer)
     def post(self, request):
@@ -108,7 +106,7 @@ class TeacherCreateAPIView(APIView):
             user.delete()
             return Response(teacher_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class TeacherGroupsAPIView(APIView):  # O‘qituvchiga tegishli guruhlarni olish
+class TeacherGroupsAPIView(APIView):
     permission_classes = [AdminOrOwner]
 
     def get(self, request, teacher_id):
@@ -123,26 +121,26 @@ class TeacherGroupsAPIView(APIView):  # O‘qituvchiga tegishli guruhlarni olish
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 #Student
-class StudentListView(ListAPIView): # Barcha talabalar ro‘yxatini olish
+class StudentListView(ListAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     pagination_class = Pagination
     permission_classes = [AdminUser]
 
-class StudentUpdateView(UpdateAPIView):  # Talaba ma'lumotlarini yangilash
+class StudentUpdateView(UpdateAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'id'
     permission_classes = [AdminUser]
 
-class StudentRetrieveAPIView(RetrieveAPIView):  # Bitta talaba haqida ma'lumot olish
+class StudentRetrieveAPIView(RetrieveAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'id'
     permission_classes = [AdminOrOwner]
 
 
-class GetStudentsByIds(APIView): # Berilgan IDlar bo‘yicha talabalarni olish
+class GetStudentsByIds(APIView):
     permission_classes = [AdminUser]
     @swagger_auto_schema(request_body=GetStudentsByIdsSerializer)
     def post(self, request):
@@ -162,6 +160,7 @@ class StudentCreateAPIView(APIView):
 
     @swagger_auto_schema(request_body=UserAndStudentSerializer)
     def post(self, request):
+
         user_data = request.data.get('user', {})
         user_serializer = UserSerializer(data=user_data)
 
@@ -178,14 +177,12 @@ class StudentCreateAPIView(APIView):
             user_s = User.objects.get(phone=phone)
             student_serializer.validated_data['user'] = user_s
             student_serializer.save()
-            return Response({"detail":"Student yaratildi"},status=status.HTTP_201_CREATED)
-
-
+            return Response(student_serializer.data, status=status.HTTP_201_CREATED)
         else:
             user.delete()
-            return Response(student_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(student_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-class StudentGroupsAPIView(APIView):  # Talabaga tegishli guruhlarni olish
+class StudentGroupsAPIView(APIView):
     permission_classes = [AdminOrOwner]
     def get(self, request, student_id):
         try:
@@ -238,54 +235,4 @@ class ParentViewSet(viewsets.ViewSet):
         parent = get_object_or_404(Parent, pk=pk)
         parent.delete()
         return Response({'status':True,'detail': 'Parent muaffaqiatli uchirildi'}, status=status.HTTP_204_NO_CONTENT)
-
-
-class HomeworkHistoryViewSet(viewsets.ModelViewSet): # Uyga vazifalar tarixi bilan ishlash uchun API
-    queryset = HomeworkHistory.objects.all()
-    serializer_class = HomeworkHistorySerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        if self.request.user.is_student:
-            return HomeworkHistory.objects.filter(student__user=self.request.user)
-        return HomeworkHistory.objects.all()
-
-    @swagger_auto_schema(
-        operation_description="Uyga vazifa tarixi yaratish",
-        request_body=HomeworkHistorySerializer,
-        responses={201: HomeworkHistorySerializer()},
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_description="Barcha uyga vazifalar ro‘yxatini olish",
-        responses={200: HomeworkHistorySerializer(many=True)},
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-
-class TeacherGroupStudentsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, teacher_id, group_id):
-        try:
-            teacher = Teacher.objects.get(id=teacher_id)
-
-            if not teacher.course.filter(groups__id=group_id).exists():
-                return Response({"error": "This group does not belong to the teacher"}, status=403)
-
-            group = Group.objects.get(id=group_id)
-            students = group.g_student.all().values("user__full_name", "user__phone")
-
-            return Response({"group": group.name, "students": list(students)})
-
-        except Teacher.DoesNotExist:
-            return Response({"error": "Teacher not found"}, status=404)
-        except Group.DoesNotExist:
-            return Response({"error": "Group not found"}, status=404)
-
-
-
 

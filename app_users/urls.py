@@ -4,14 +4,12 @@ from rest_framework.routers import DefaultRouter
 from app_users.views import TeacherCreateAPIView, TeacherListView, TeacherUpdateView, StudentListView, \
     StudentUpdateView, StudentCreateAPIView, TeacherRetrieveAPIView, StudentRetrieveAPIView, \
     UserListView, UserDetailView, UserCreateView, UserUpdateView, UserDeleteView, ParentViewSet, \
-    TeacherGroupsAPIView, StudentGroupsAPIView, GetStudentsByIds, GetTeachersByIds,HomeworkHistoryViewSet,\
-    TeacherGroupStudentsAPIView
+    TeacherGroupsAPIView, StudentGroupsAPIView, GetStudentsByIds, GetTeachersByIds
 
 app_name = 'users'
 
 router = DefaultRouter()
 router.register(r'parents', ParentViewSet, basename='parent')
-router.register(r'homework', HomeworkHistoryViewSet)
 
 
 urlpatterns = [
@@ -32,8 +30,6 @@ urlpatterns = [
     path('update/student/<int:id>/',StudentUpdateView.as_view(),name="update_student"),
     path('student-groups/<int:student_id>/', StudentGroupsAPIView.as_view(), name="student_groups"),
     path('get-students-by-ids/',GetStudentsByIds.as_view(),name='students-by-id'),
-    path('teacher-group-students/<int:teacher_id>/<int:group_id>/', TeacherGroupStudentsAPIView.as_view(), name="teacher_group_students"),
-
     path('',include(router.urls)),
 
 ]
